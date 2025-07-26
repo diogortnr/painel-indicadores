@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Indicadores - Equipe de Tecnologia</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .chart-container {
+      width: 80%;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .last-update {
+      text-align: center;
+      font-size: 0.9em;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>Painel de Indicadores - Equipe de Tecnologia</h1>
+  <div class="chart-container">
+    <canvas id="slaChart"></canvas>
+  </div>
+  <div class="chart-container">
+    <canvas id="chamadosChart"></canvas>
+  </div>
+  <p class="last-update">Última atualização: <span id="dataAtual"></span></p>
+
+  <script>
+    async function carregarDados() {
+      const resposta = await fetch('dados.json');
+      const dados = await resposta.json();
+
+      const slaCtx = document.getElementById('slaChart');
+      const chamadosCtx = document.getElementById('chamadosChart');
+
+      new Chart(slaCtx, {
+        type: 'line',
+        data: {
+          labels: dados.dias,
+          datasets: [{
+            label: 'SLA (%)',
+            data: dados.sla,
+            borderColor: 'green',
+            backgroundColor: 'rgba(0,128,0,0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Histórico de SLA (%)'
+            }
+          }
+        }
+      });
+
+      new Chart(chamadosCtx, {
+        type: 'bar',
+        data: {
+          labels: dados.dias,
+          datasets: [{
+            label: 'Chamados Resolvidos',
+            data: dados.chamados,
+            backgroundColor: 'rgba(54, 162, 235, 0.7)'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: 'Chamados Resolvidos por Dia'
+            }
+          }
+        }
+      });
+
+      document.getElementById("dataAtual").textContent = new Date().toLocaleDateString();
+    }
+
+    carregarDados();
+  </script>
+</body>
+</html>

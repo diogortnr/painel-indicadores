@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Indicadores - Julho</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .chart-container {
+      width: 90%;
+      margin: 30px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+  <h1>Painel de SLA - Julho 2025</h1>
+
+  <div class="chart-container">
+    <canvas id="slaChart"></canvas>
+  </div>
+
+  <script>
+    async function carregarGrafico() {
+      try {
+        const response = await fetch("dados.json");
+        const dados = await response.json();
+
+        const ctx = document.getElementById('slaChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: dados.dias,
+            datasets: [{
+              label: 'SLA (%)',
+              data: dados.sla.map(x => x * 100),
+              borderColor: 'blue',
+              backgroundColor: 'rgba(0,0,255,0.1)',
+              fill: true,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              title: {
+                display: true,
+                text: 'Evolução Diária do SLA (%) - Julho'
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 110
+              }
+            }
+          }
+        });
+      } catch (erro) {
+        console.error("Erro ao carregar o JSON:", erro);
+      }
+    }
+
+    carregarGrafico();
+  </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Indicadores - Julho</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .chart-container {
+      width: 90%;
+      margin: 30px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+  <h1>Painel de SLA - Julho 2025</h1>
+
+  <div class="chart-container">
+    <canvas id="slaChart"></canvas>
+  </div>
+
+  <script>
+    const dados = {
+      dias: [
+        "2025-07-01", "2025-07-02", "2025-07-03", "2025-07-04", "2025-07-05",
+        "2025-07-06", "2025-07-07", "2025-07-08", "2025-07-09", "2025-07-10",
+        "2025-07-11", "2025-07-12", "2025-07-13", "2025-07-14", "2025-07-15",
+        "2025-07-16", "2025-07-17", "2025-07-18", "2025-07-19", "2025-07-20",
+        "2025-07-21", "2025-07-22", "2025-07-23", "2025-07-24"
+      ],
+      sla: [
+        0.99, 0.922, 0.989, 0.996, 1.0, 0.813, 0.9, 0.99, 0.978, 0.974,
+        1.0, 0.971, 1.0, 0.991, 1.0, 0.995, 0.984, 0.985, 0.92, 0.884,
+        0.982, 0.99, 0.922, 0.843
+      ]
+    };
+
+    const ctx = document.getElementById('slaChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: dados.dias,
+        datasets: [{
+          label: 'SLA (%)',
+          data: dados.sla.map(x => x * 100),
+          borderColor: 'blue',
+          backgroundColor: 'rgba(0,0,255,0.1)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Evolução Diária do SLA (%) - Julho'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 110
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

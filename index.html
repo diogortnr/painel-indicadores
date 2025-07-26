@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel de Indicadores - ETIT e ESER</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .chart-container {
+      width: 90%%;
+      margin: 30px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    footer {
+      text-align: center;
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Painel de Indicadores - ETIT e ESER</h1>
+
+  <div class="chart-container">
+    <canvas id="etitChart"></canvas>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="eserChart"></canvas>
+  </div>
+
+  <footer id="updated">Última atualização: carregando...</footer>
+
+  <script>
+    const timestamp = new Date().toLocaleString('pt-BR');
+    document.getElementById("updated").textContent = "Última atualização: " + timestamp;
+
+    fetch("dados_completo.json?" + new Date().getTime())
+      .then(resp => resp.json())
+      .then(data => {
+        new Chart(document.getElementById("etitChart"), {
+          type: 'line',
+          data: {
+            labels: data.dias,
+            datasets: [{
+              label: "ETIT (%)",
+              data: data.etit,
+              borderColor: 'blue',
+              backgroundColor: 'rgba(0,0,255,0.1)',
+              fill: true,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              title: {
+                display: true,
+                text: 'Histórico ETIT (%)'
+              }
+            }
+          }
+        });
+
+        new Chart(document.getElementById("eserChart"), {
+          type: 'line',
+          data: {
+            labels: data.dias,
+            datasets: [{
+              label: "ESER (%)",
+              data: data.eser,
+              borderColor: 'orange',
+              backgroundColor: 'rgba(255,165,0,0.1)',
+              fill: true,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              title: {
+                display: true,
+                text: 'Histórico ESER (%)'
+              }
+            }
+          }
+        });
+      })
+      .catch(error => {
+        document.body.innerHTML += "<p style='color:red;'>Erro ao carregar dados.</p>";
+        console.error(error);
+      });
+  </script>
+</body>
+</html>

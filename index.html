@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel de Indicadores - Moderno</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f9fafc;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .chart-container {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+    canvas {
+      max-width: 100%;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.85em;
+      color: #666;
+      margin-top: 40px;
+    }
+    @media (min-width: 768px) {
+      .chart-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .chart-grid > .chart-container:last-child {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Painel de Indicadores</h1>
+  <div class="chart-grid">
+    <div class="chart-container"><canvas id="etitChart"></canvas></div>
+    <div class="chart-container"><canvas id="eserChart"></canvas></div>
+    <div class="chart-container"><canvas id="ralEtitChart"></canvas></div>
+    <div class="chart-container"><canvas id="ralEserChart"></canvas></div>
+    <div class="chart-container"><canvas id="slaChart"></canvas></div>
+  </div>
+
+  <footer id="updated">Última atualização: carregando...</footer>
+
+  <script>
+    const timestamp = new Date().toLocaleString('pt-BR');
+    document.getElementById("updated").textContent = "Última atualização: " + timestamp;
+
+    fetch("dados_completo_multigrafico.json?" + new Date().getTime())
+      .then(resp => resp.json())
+      .then(data => {
+        function criarGrafico(id, label, valores, cor) {
+          new Chart(document.getElementById(id), {
+            type: 'line',
+            data: {
+              labels: data.dias,
+              datasets: [{
+                label: label,
+                data: valores,
+                borderColor: cor,
+                backgroundColor: cor.replace('1)', '0.1)'),
+                fill: true,
+                tension: 0.35,
+                pointRadius: 3,
+                pointHoverRadius: 6
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                title: {
+                  display: true,
+                  text: label,
+                  font: { size: 18 }
+                },
+                legend: {
+                  display: false
+                },
+                tooltip: {
+                  callbacks: {
+                    label: ctx => `${(ctx.parsed.y * 100).toFixed(1)}%`
+                  }
+                }
+              },
+              scales: {
+                y: {
+                  ticks: {
+                    callback: v => `${(v * 100).toFixed(0)}%`
+                  },
+                  beginAtZero: true,
+                  max: 1.1
+                }
+              }
+            }
+          });
+        }
+
+        criarGrafico("etitChart", "ETIT (%)", data.etit, "rgba(0, 102, 204, 1)");
+        criarGrafico("eserChart", "ESER (%)", data.eser, "rgba(255, 159, 64, 1)");
+        criarGrafico("ralEtitChart", "RAL - ETIT (%)", data.ral_etit, "rgba(153, 102, 255, 1)");
+        criarGrafico("ralEserChart", "RAL - ESER (%)", data.ral_eser, "rgba(255, 99, 132, 1)");
+        criarGrafico("slaChart", "SLA (%)", data.sla, "rgba(75, 192, 192, 1)");
+      })
+      .catch(error => {
+        document.body.innerHTML += `
+          <div style="background:#ffefef; border:1px solid red; padding:10px; color:#900; margin:20px auto; width:80%; text-align:center;">
+            ❌ Não foi possível carregar os dados.<br>
+            Verifique se o arquivo <code>dados_completo_multigrafico.json</code> está corretamente publicado no repositório.
+          </div>
+        `;
+        console.error(error);
+      });
+  </script>
+</body>
+</html>

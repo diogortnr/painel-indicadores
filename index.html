@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel de Indicadores - Completo</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .chart-container {
+      width: 90%%;
+      margin: 30px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    footer {
+      text-align: center;
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Painel de Indicadores - Completo</h1>
+
+  <div class="chart-container"><canvas id="etitChart"></canvas></div>
+  <div class="chart-container"><canvas id="eserChart"></canvas></div>
+  <div class="chart-container"><canvas id="ralEtitChart"></canvas></div>
+  <div class="chart-container"><canvas id="ralEserChart"></canvas></div>
+  <div class="chart-container"><canvas id="slaChart"></canvas></div>
+
+  <footer id="updated">Última atualização: carregando...</footer>
+
+  <script>
+    const timestamp = new Date().toLocaleString('pt-BR');
+    document.getElementById("updated").textContent = "Última atualização: " + timestamp;
+
+    fetch("dados_completo_multigrafico.json?" + new Date().getTime())
+      .then(resp => resp.json())
+      .then(data => {
+        function criarGrafico(id, label, valores, cor) {
+          new Chart(document.getElementById(id), {
+            type: 'line',
+            data: {
+              labels: data.dias,
+              datasets: [{
+                label: label,
+                data: valores,
+                borderColor: cor,
+                backgroundColor: cor.replace('1)', '0.15)'),
+                fill: true,
+                tension: 0.3
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                title: {
+                  display: true,
+                  text: label
+                }
+              }
+            }
+          });
+        }
+
+        criarGrafico("etitChart", "ETIT (%)", data.etit, "rgba(0, 102, 204, 1)");
+        criarGrafico("eserChart", "ESER (%)", data.eser, "rgba(255, 159, 64, 1)");
+        criarGrafico("ralEtitChart", "RAL - ETIT (%)", data.ral_etit, "rgba(153, 102, 255, 1)");
+        criarGrafico("ralEserChart", "RAL - ESER (%)", data.ral_eser, "rgba(255, 99, 132, 1)");
+        criarGrafico("slaChart", "SLA (%)", data.sla, "rgba(75, 192, 192, 1)");
+      })
+      .catch(error => {
+        document.body.innerHTML += "<p style='color:red;'>Erro ao carregar dados.</p>";
+        console.error(error);
+      });
+  </script>
+</body>
+</html>

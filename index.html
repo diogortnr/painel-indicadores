@@ -100,10 +100,16 @@
                 },
                 datalabels: {
                   color: "#222",
-                  font: { weight: 'bold', size: 11 },
-                  align: 'end',
+                  font: { weight: 'bold', size: 12 },
+                  align: 'top',
                   anchor: 'end',
-                  formatter: v => v == null ? '' : `${(v*100).toFixed(1)}%`
+                  offset: 8,
+                  formatter: v => v == null ? '' : `${(v*100).toFixed(1)}%`,
+                  display: function(context) {
+                    const idx = context.dataIndex;
+                    const total = context.chart.data.labels.length;
+                    return idx >= total - 2;
+                  }
                 },
                 tooltip: {
                   callbacks: {

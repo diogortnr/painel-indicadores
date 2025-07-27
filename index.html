@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel de Indicadores - Moderno</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: #23262f;
+      margin: 0;
+      padding: 20px;
+      color: #fff;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .chart-container {
+      background: #2d3039;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(255, 25, 25, 0.06);
+    }
+    canvas {
+      max-width: 100%;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.85em;
+      color: #ff1919;
+      margin-top: 40px;
+    }
+    @media (min-width: 768px) {
+      .chart-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .chart-grid > .chart-container:last-child {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Painel de Indicadores</h1>
+  <div class="chart-grid">
+    <div class="chart-container"><canvas id="etitChart"></canvas></div>
+    <div class="chart-container"><canvas id="eserChart"></canvas></div>
+    <div class="chart-container"><canvas id="ralEtitChart"></canvas></div>
+    <div class="chart-container"><canvas id="ralEserChart"></canvas></div>
+    <div class="chart-container"><canvas id="slaChart"></canvas></div>
+  </div>
+
+  <footer id="updated">Última atualização: carregando...</footer>
+
+  <script>
+    const timestamp = new Date().toLocaleString('pt-BR');
+    document.getElementById("updated").textContent = "Última atualização: " + timestamp;
+
+    fetch("dados_completo_multigrafico.json?" + new Date().getTime())
+      .then(resp => resp.json())
+      .then(data => {
+        function criarGrafico(id, label, valores, meta) {
+          new Chart(document.getElementById(id), {
+            type: 'line',
+            data: {
+              labels: data.dias,
+              datasets: [{
+                label: label,
+                data: valores,
+                borderColor: 'rgba(255, 159, 64, 1)',
+                backgroundColor: 'rgba(255, 159, 64, 0.1)',
+                fill: true,
+                tension: 0.35,
+                pointRadius: 3,
+                pointHoverRadius: 6
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                title: {
+                  display: true,
+                  text: label,
+                  font: { size: 18 }
+                },
+                legend: {
+                  display: false
+                },
+                datalabels: {
+                  color: "#fff",
+                  font: { weight: 'bold', size: 12 },
+                  align: 'top',
+                  anchor: 'end',
+                  offset: 8,
+                  formatter: v => v == null ? '' : `${(v*100).toFixed(1)}%`,
+                  display: function(context) {
+                    const idx = context.dataIndex;
+                    const total = context.chart.data.labels.length;
+                    return idx >= total - 2;
+                  }
+                },
+                annotation: {
+                  annotations: {
+                    metaLine: {
+                      type: 'line',
+                      yMin: meta,
+                      yMax: meta,
+                      borderColor: '#ff1919',
+                      borderWidth: 2,
+                      borderDash: [8, 5]
+                    }
+                  }
+                },
+                tooltip: {
+                  callbacks: {
+                    label: ctx => `${(ctx.parsed.y * 100).toFixed(1)}%`
+                  }
+                }
+              },
+              scales: {
+                y: {
+                  ticks: {
+                    callback: v => `${(v * 100).toFixed(0)}%`
+                  },
+                  beginAtZero: true,
+                  max: 1.1
+                }
+              }
+            },
+            plugins: [ChartDataLabels]
+          });
+        }
+
+        criarGrafico("etitChart", "INCIDENTES ETIT (85%)", data.etit, 0.85);
+        criarGrafico("eserChart", "INCIDENTES ESER (97%)", data.eser, 0.97);
+        criarGrafico("ralEtitChart", "RAL - ETIT (85%)", data.ral_etit, 0.85);
+        criarGrafico("ralEserChart", "RAL - ESER (97%)", data.ral_eser, 0.97);
+        criarGrafico("slaChart", "BA - SLA (85%)", data.sla, 0.85);
+      })
+      .catch(error => {
+        document.body.innerHTML += `
+          <div style="background:#ffefef; border:1px solid #ff1919; padding:10px; color:#ff1919; margin:20px auto; width:80%; text-align:center;">
+            ❌ Não foi possível carregar os dados.<br>
+            Verifique se o arquivo <code>dados_completo_multigrafico.json</code> está corretamente publicado no repositório.
+          </div>
+        `;
+        console.error(error);
+      });
+  </script>
+</body>
+</html>

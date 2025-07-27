@@ -5,6 +5,7 @@
   <title>Painel de Indicadores - Moderno</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
@@ -71,7 +72,7 @@
     fetch("dados_completo_multigrafico.json?" + new Date().getTime())
       .then(resp => resp.json())
       .then(data => {
-        function criarGrafico(id, label, valores, cor) {
+        function criarGrafico(id, label, valores, meta) {
           new Chart(document.getElementById(id), {
             type: 'line',
             data: {
@@ -79,8 +80,8 @@
               datasets: [{
                 label: label,
                 data: valores,
-                borderColor: cor,
-                backgroundColor: cor.replace('1)', '0.1)'),
+                borderColor: 'rgba(255, 159, 64, 1)',
+                backgroundColor: 'rgba(255, 159, 64, 0.1)',
                 fill: true,
                 tension: 0.35,
                 pointRadius: 3,
@@ -111,6 +112,27 @@
                     return idx >= total - 2;
                   }
                 },
+                annotation: {
+                  annotations: {
+                    metaLine: {
+                      type: 'line',
+                      yMin: meta,
+                      yMax: meta,
+                      borderColor: '#ff8c1a',
+                      borderWidth: 2,
+                      borderDash: [8, 5],
+                      label: {
+                        display: true,
+                        content: 'Meta',
+                        enabled: true,
+                        color: '#ff8c1a',
+                        font: { weight: 'bold' },
+                        position: 'end',
+                        yAdjust: -10
+                      }
+                    }
+                  }
+                },
                 tooltip: {
                   callbacks: {
                     label: ctx => `${(ctx.parsed.y * 100).toFixed(1)}%`
@@ -131,11 +153,11 @@
           });
         }
 
-        criarGrafico("etitChart", "ETIT (%)", data.etit, "rgba(0, 102, 204, 1)");
-        criarGrafico("eserChart", "ESER (%)", data.eser, "rgba(255, 159, 64, 1)");
-        criarGrafico("ralEtitChart", "RAL - ETIT (%)", data.ral_etit, "rgba(153, 102, 255, 1)");
-        criarGrafico("ralEserChart", "RAL - ESER (%)", data.ral_eser, "rgba(255, 99, 132, 1)");
-        criarGrafico("slaChart", "SLA (%)", data.sla, "rgba(75, 192, 192, 1)");
+        criarGrafico("etitChart", "INCIDENTES ETIT (85%)", data.etit, 0.85);
+        criarGrafico("eserChart", "INCIDENTES ESER (97%)", data.eser, 0.97);
+        criarGrafico("ralEtitChart", "RAL - ETIT (85%)", data.ral_etit, 0.85);
+        criarGrafico("ralEserChart", "RAL - ESER (97%)", data.ral_eser, 0.97);
+        criarGrafico("slaChart", "BA - SLA (85%)", data.sla, 0.85);
       })
       .catch(error => {
         document.body.innerHTML += `

@@ -126,7 +126,7 @@
                 anchor: 'end',
                 offset: 8,
                 formatter: v => v == null ? '' : `${(v*100).toFixed(1)}%`,
-                display: ctx => ctx.raw !== null
+                display: ctx => ctx.dataIndex >= ctx.chart.data.labels.length - 2
               },
               annotation: {
                 annotations: {

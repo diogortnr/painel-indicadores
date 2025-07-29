@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -72,21 +73,7 @@
     fetch("dados_completo_multigrafico.json?" + new Date().getTime())
       .then(resp => resp.json())
       .then(data => {
-        const cores = {
-          "etitChart": { border: 'rgba(54, 162, 235, 1)', background: 'rgba(54, 162, 235, 0.2)' },
-          "eserChart": { border: 'rgba(255, 99, 132, 1)', background: 'rgba(255, 99, 132, 0.2)' },
-          "ralEtitChart": { border: 'rgba(75, 192, 192, 1)', background: 'rgba(75, 192, 192, 0.2)' },
-          "ralEserChart": { border: 'rgba(153, 102, 255, 1)', background: 'rgba(153, 102, 255, 0.2)' },
-          "slaChart": { border: 'rgba(255, 206, 86, 1)', background: 'rgba(255, 206, 86, 0.2)' },
-        };
-
-        function criarGrafico(id, labelBase, valores, meta) {
-          const ultimoValor = [...valores].reverse().find(v => v != null);
-          const statusEmoji = ultimoValor >= meta ? '✅' : '❌';
-          const corTitulo = ultimoValor >= meta ? '#00e676' : '#ff1744';
-          const label = `${statusEmoji} ${labelBase}`;
-          const cor = cores[id];
-
+        function criarGrafico(id, label, valores, meta) {
           new Chart(document.getElementById(id), {
             type: 'line',
             data: {
@@ -94,8 +81,8 @@
               datasets: [{
                 label: label,
                 data: valores,
-                borderColor: cor.border,
-                backgroundColor: cor.background,
+                borderColor: 'rgba(255, 159, 64, 1)',
+                backgroundColor: 'rgba(255, 159, 64, 0.1)',
                 fill: true,
                 tension: 0.35,
                 pointRadius: 3,
@@ -108,8 +95,7 @@
                 title: {
                   display: true,
                   text: label,
-                  color: corTitulo,
-                  font: { size: 18, weight: 'bold' }
+                  font: { size: 18 }
                 },
                 legend: { display: false },
                 datalabels: {
@@ -145,11 +131,7 @@
                     callback: v => `${(v * 100).toFixed(0)}%`
                   },
                   beginAtZero: true,
-                  max: 1.1,
-                  grid: { color: '#ccc' }
-                },
-                x: {
-                  grid: { color: '#ccc' }
+                  max: 1.1
                 }
               }
             },

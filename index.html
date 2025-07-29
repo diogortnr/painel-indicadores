@@ -82,7 +82,7 @@
       .then(resp => resp.json())
       .then(data => {
         function criarGrafico(id, labelBase, valores, meta) {
-          const ultimaLeitura = valores[valores.length - 1];
+          const ultimaLeitura = [...valores].reverse().find(v => typeof v === 'number' && !isNaN(v));
           const dentroDaMeta = ultimaLeitura >= meta;
           const corTitulo = dentroDaMeta ? '#4CAF50' : '#ff4444';
           const emoji = dentroDaMeta ? '✅' : '❌';

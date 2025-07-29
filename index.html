@@ -66,38 +66,40 @@
               }
             },
             scales: {
-  x: {
-    ticks: {
-      callback: (value, index) => {
-        const raw = data.dias[index];
-        if (!raw) return "";
-        const [ano, mes, dia] = raw.split("-");
-        return `${dia}/${mes}`;
-      },
-      color: "#ccc",
-      maxRotation: 45,
-      minRotation: 45
-    },
-    title: {
-      display: true,
-      text: "Data",
-      color: "#aaa",
-      font: { size: 12 }
-    }
-  },
-  y: {
-    ticks: {
-      callback: v => `${(v * 100).toFixed(0)}%`,
-      color: "#ccc"
-    },
-    beginAtZero: true,
-    max: 1.1,
-    title: {
-      display: true,
-      text: "Percentual",
-      color: "#aaa",
-      font: { size: 12 }
-    }
+              x: {
+                ticks: {
+                  callback: (value, index) => {
+                    const raw = data.dias[index];
+                    if (!raw) return "";
+                    const [ano, mes, dia] = raw.split("-");
+                    return `${dia}/${mes}`;
+                  },
+                  color: "#ccc",
+                  maxRotation: 45,
+                  minRotation: 45
+                },
+                title: {
+                  display: true,
+                  text: "Data",
+                  color: "#aaa",
+                  font: { size: 12 }
+                }
+              },
+              y: {
+                ticks: {
+                  callback: v => `${(v * 100).toFixed(0)}%`,
+                  color: "#ccc"
+                },
+                beginAtZero: true,
+                max: 1.1,
+                title: {
+                  display: true,
+                  text: "Percentual",
+                  color: "#aaa",
+                  font: { size: 12 }
+                }
+              }
+            }
           },
           plugins: [ChartDataLabels]
         });

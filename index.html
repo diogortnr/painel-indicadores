@@ -70,9 +70,14 @@
     const timestamp = new Date().toLocaleString('pt-BR');
     document.getElementById("updated").textContent = "Última atualização: " + timestamp;
 
-    fetch("dados_completo_multigrafico.json?" + new Date().getTime())
-      .then(resp => resp.json())
-      .then(data => {
+const data = {
+  dias: ["Seg", "Ter", "Qua", "Qui", "Sex"],
+  etit: [0.84, 0.85, 0.87, 0.86, 0.88],
+  eser: [0.96, 0.95, 0.98, 0.99, 0.97],
+  ral_etit: [0.83, 0.84, 0.85, 0.86, 0.84],
+  ral_eser: [0.96, 0.96, 0.96, 0.97, 0.98],
+  sla: [0.81, 0.82, 0.83, 0.84, 0.85]
+};
         
 function criarGrafico(id, labelBase, valores, meta) {
   const ultimaLeitura = valores[valores.length - 1];
@@ -146,9 +151,7 @@ function criarGrafico(id, labelBase, valores, meta) {
     },
     plugins: [ChartDataLabels]
   });
-}
 
-          }
 
         const graficos = [
           { id: "etitChart", label: "INCIDENTES - ETIT (85%)", dados: data.etit, meta: 0.85 },
@@ -159,16 +162,6 @@ function criarGrafico(id, labelBase, valores, meta) {
         ];
 
         graficos.forEach(cfg => criarGrafico(cfg.id, cfg.label, cfg.dados, cfg.meta));
-      })
-      .catch(error => {
-        document.body.innerHTML += `
-          <div style="background:#ffefef; border:1px solid #ff1919; padding:10px; color:#ff1919; margin:20px auto; width:80%; text-align:center;">
-            ❌ Não foi possível carregar os dados.<br>
-            Verifique se o arquivo <code>dados_completo_multigrafico.json</code> está corretamente publicado no repositório.
-          </div>
-        `;
-        console.error(error);
-      });
-  </script>
+      
 </body>
 </html>

@@ -1,127 +1,205 @@
-<script>
-  const timestamp = new Date().toLocaleString('pt-BR');
-  document.getElementById("updated").textContent = "Última atualização: " + timestamp;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Painel de Indicadores - Moderno</title>
 
-  fetch("dados_completo_multigrafico.json?" + new Date().getTime())
-    .then(resp => resp.json())
-    .then(data => {
-      function criarGrafico(id, labelBase, valores, meta) {
-        const ultimaLeitura = valores[valores.length - 1];
-        const dentroDaMeta = ultimaLeitura >= meta;
-        const corTitulo = dentroDaMeta ? '#4CAF50' : '#ff4444';
-        const emoji = dentroDaMeta ? '✅' : '❌';
-        const tituloFinal = emoji + ' ' + labelBase;
+  <!-- Bibliotecas Chart.js e plugins -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
 
-        new Chart(document.getElementById(id), {
-          type: 'line',
-          data: {
-            labels: data.dias,
-            datasets: [{
-              label: labelBase,
-              data: valores,
-              borderColor: 'rgba(255, 159, 64, 1)',
-              backgroundColor: 'rgba(255, 159, 64, 0.1)',
-              fill: true,
-              tension: 0.35,
-              pointRadius: 3,
-              pointHoverRadius: 6
-            }]
-          },
-          options: {
-            spanGaps: true,
-            responsive: true,
-            plugins: {
-              title: {
-                display: true,
-                text: tituloFinal,
-                color: corTitulo,
-                font: { size: 18 }
-              },
-              legend: { display: false },
-              datalabels: {
-                color: "#fff",
-                font: { weight: 'bold', size: 12 },
-                align: 'top',
-                anchor: 'end',
-                offset: 8,
-                formatter: v => v == null ? '' : `${(v * 100).toFixed(1)}%`,
-                display: ctx => ctx.dataIndex >= ctx.chart.data.labels.length - 2
-              },
-              annotation: {
-                annotations: {
-                  metaLine: {
-                    type: 'line',
-                    yMin: meta,
-                    yMax: meta,
-                    borderColor: '#ff1919',
-                    borderWidth: 2,
-                    borderDash: [8, 5]
+  <!-- Fonte Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.png" type="image/png" />
+
+  <!-- Estilos -->
+  <style>
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: #23262f;
+      margin: 0;
+      padding: 20px;
+      color: #fff;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .chart-container {
+      background: #2d3039;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(255, 25, 25, 0.06);
+    }
+    canvas {
+      max-width: 100%;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.85em;
+      color: #ff1919;
+      margin-top: 40px;
+    }
+    @media (min-width: 768px) {
+      .chart-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .chart-grid > .chart-container:last-child {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Painel de Indicadores</h1>
+  <div class="chart-grid">
+    <div class="chart-container"><canvas id="etitChart"></canvas></div>
+    <div class="chart-container"><canvas id="eserChart"></canvas></div>
+    <div class="chart-container"><canvas id="ralEtitChart"></canvas></div>
+    <div class="chart-container"><canvas id="ralEserChart"></canvas></div>
+    <div class="chart-container"><canvas id="slaChart"></canvas></div>
+  </div>
+
+  <footer id="updated">Última atualização: carregando...</footer>
+
+  <script>
+    const timestamp = new Date().toLocaleString('pt-BR');
+    document.getElementById("updated").textContent = "Última atualização: " + timestamp;
+
+    fetch("dados_completo_multigrafico.json?" + new Date().getTime())
+      .then(resp => resp.json())
+      .then(data => {
+        function criarGrafico(id, labelBase, valores, meta) {
+          const ultimaLeitura = valores[valores.length - 1];
+          const dentroDaMeta = ultimaLeitura >= meta;
+          const corTitulo = dentroDaMeta ? '#4CAF50' : '#ff4444';
+          const emoji = dentroDaMeta ? '✅' : '❌';
+          const tituloFinal = emoji + ' ' + labelBase;
+
+          new Chart(document.getElementById(id), {
+            type: 'line',
+            data: {
+              labels: data.dias,
+              datasets: [{
+                label: labelBase,
+                data: valores,
+                borderColor: 'rgba(255, 159, 64, 1)',
+                backgroundColor: 'rgba(255, 159, 64, 0.1)',
+                fill: true,
+                tension: 0.35,
+                pointRadius: 3,
+                pointHoverRadius: 6
+              }]
+            },
+            options: {
+              spanGaps: true,
+              responsive: true,
+              plugins: {
+                title: {
+                  display: true,
+                  text: tituloFinal,
+                  color: corTitulo,
+                  font: { size: 18 }
+                },
+                legend: { display: false },
+                datalabels: {
+                  color: "#fff",
+                  font: { weight: 'bold', size: 12 },
+                  align: 'top',
+                  anchor: 'end',
+                  offset: 8,
+                  formatter: v => v == null ? '' : `${(v * 100).toFixed(1)}%`,
+                  display: ctx => ctx.dataIndex >= ctx.chart.data.labels.length - 2
+                },
+                annotation: {
+                  annotations: {
+                    metaLine: {
+                      type: 'line',
+                      yMin: meta,
+                      yMax: meta,
+                      borderColor: '#ff1919',
+                      borderWidth: 2,
+                      borderDash: [8, 5]
+                    }
+                  }
+                },
+                tooltip: {
+                  callbacks: {
+                    label: ctx => `${(ctx.parsed.y * 100).toFixed(1)}%`
                   }
                 }
               },
-              tooltip: {
-                callbacks: {
-                  label: ctx => `${(ctx.parsed.y * 100).toFixed(1)}%`
+              scales: {
+                x: {
+                  ticks: {
+                    callback: (value, index) => {
+                      const raw = data.dias[index];
+                      if (!raw) return "";
+                      const [ano, mes, dia] = raw.split("-");
+                      return `${dia}/${mes}`;
+                    },
+                    color: "#ccc",
+                    maxRotation: 45,
+                    minRotation: 45
+                  },
+                  title: {
+                    display: true,
+                    text: "Data",
+                    color: "#aaa",
+                    font: { size: 12 }
+                  }
+                },
+                y: {
+                  ticks: {
+                    callback: v => `${(v * 100).toFixed(0)}%`,
+                    color: "#ccc"
+                  },
+                  beginAtZero: true,
+                  max: 1.1,
+                  title: {
+                    display: true,
+                    text: "Percentual",
+                    color: "#aaa",
+                    font: { size: 12 }
+                  }
                 }
               }
             },
-            scales: {
-              x: {
-                ticks: {
-                  callback: (value, index) => {
-                    const raw = data.dias[index];
-                    if (!raw) return "";
-                    const [ano, mes, dia] = raw.split("-");
-                    return `${dia}/${mes}`;
-                  },
-                  color: "#ccc",
-                  maxRotation: 45,
-                  minRotation: 45
-                },
-                title: {
-                  display: true,
-                  text: "Data",
-                  color: "#aaa",
-                  font: { size: 12 }
-                }
-              },
-              y: {
-                ticks: {
-                  callback: v => `${(v * 100).toFixed(0)}%`,
-                  color: "#ccc"
-                },
-                beginAtZero: true,
-                max: 1.1,
-                title: {
-                  display: true,
-                  text: "Percentual",
-                  color: "#aaa",
-                  font: { size: 12 }
-                }
-              }
-            }
-          },
-          plugins: [ChartDataLabels]
-        });
-      }
+            plugins: [ChartDataLabels]
+          });
+        }
 
-      const graficos = [
-        { id: "etitChart", label: "INCIDENTES - ETIT (85%)", dados: data.etit, meta: 0.85 },
-        { id: "eserChart", label: "INCIDENTES - ESER (97%)", dados: data.eser, meta: 0.97 },
-        { id: "ralEtitChart", label: "RAL - ETIT (85%)", dados: data.ral_etit, meta: 0.85 },
-        { id: "ralEserChart", label: "RAL - ESER (97%)", dados: data.ral_eser, meta: 0.97 },
-        { id: "slaChart", label: "BA - SLA (85%)", dados: data.sla, meta: 0.85 },
-      ];
+        const graficos = [
+          { id: "etitChart", label: "INCIDENTES - ETIT (85%)", dados: data.etit, meta: 0.85 },
+          { id: "eserChart", label: "INCIDENTES - ESER (97%)", dados: data.eser, meta: 0.97 },
+          { id: "ralEtitChart", label: "RAL - ETIT (85%)", dados: data.ral_etit, meta: 0.85 },
+          { id: "ralEserChart", label: "RAL - ESER (97%)", dados: data.ral_eser, meta: 0.97 },
+          { id: "slaChart", label: "BA - SLA (85%)", dados: data.sla, meta: 0.85 }
+        ];
 
-      graficos.forEach(cfg => criarGrafico(cfg.id, cfg.label, cfg.dados, cfg.meta));
-    })
-    .catch(error => {
-      document.body.innerHTML += `
-        <div style="background:#ffefef; border:1px solid #ff1919; padding:10px; color:#ff1919; margin:20px auto; width:80%; text-align:center;">
-          ❌ Não foi possível carregar os dados.<br>
-          Verifique se o arquivo <code>dados_completo_multigrafico.json</code> está corretamente publicado no repositório.
-        </div>
-      `;
-      console.error(error);
-    });
-</script>
+        graficos.forEach(cfg => criarGrafico(cfg.id, cfg.label, cfg.dados, cfg.meta));
+      })
+      .catch(error => {
+        document.body.innerHTML += `
+          <div style="background:#ffefef; border:1px solid #ff1919; padding:10px; color:#ff1919; margin:20px auto; width:80%; text-align:center;">
+            ❌ Não foi possível carregar os dados.<br>
+            Verifique se o arquivo <code>dados_completo_multigrafico.json</code> está corretamente publicado no repositório.
+          </div>
+        `;
+        console.error(error);
+      });
+  </script>
+</body>
+</html>

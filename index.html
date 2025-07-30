@@ -3,18 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <title>Painel de Indicadores - Moderno</title>
-
   <!-- Bibliotecas Chart.js e plugins -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.4.0"></script>
-
   <!-- Fonte Inter -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
   <!-- Favicon -->
   <link rel="icon" href="favicon.png" type="image/png" />
-
   <!-- Estilos -->
   <style>
     body {
@@ -82,6 +78,7 @@
       .then(resp => resp.json())
       .then(data => {
         function criarGrafico(id, labelBase, valores, meta) {
+          // Busca o último valor válido para emoji/meta
           const ultimaLeitura = [...valores].reverse().find(v => typeof v === 'number' && !isNaN(v));
           const dentroDaMeta = ultimaLeitura >= meta;
           const corTitulo = dentroDaMeta ? '#4CAF50' : '#ff4444';
@@ -121,7 +118,13 @@
                   anchor: 'end',
                   offset: 8,
                   formatter: v => v == null ? '' : `${(v * 100).toFixed(1)}%`,
-                  display: ctx => ctx.dataIndex >= ctx.chart.data.labels.length - 2
+                  // --- AJUSTE: label só no último valor válido ---
+                  display: function(context) {
+                    const dataArr = context.dataset.data;
+                    let lastNonNull = dataArr.length - 1;
+                    while (lastNonNull >= 0 && (dataArr[lastNonNull] === null || typeof dataArr[lastNonNull] !== "number" || isNaN(dataArr[lastNonNull]))) lastNonNull--;
+                    return context.dataIndex === lastNonNull && dataArr[lastNonNull] != null;
+                  }
                 },
                 annotation: {
                   annotations: {

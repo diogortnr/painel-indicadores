@@ -77,6 +77,30 @@
     fetch("dados_completo_multigrafico.json?" + new Date().getTime())
       .then(resp => resp.json())
       .then(data => {
+  // --- Validação automática ---
+  const totalDias = data.dias.length;
+  const chaves = ["etit", "eser", "ral_etit", "ral_eser", "sla"];
+  let erros = [];
+
+  chaves.forEach(campo => {
+    if (!Array.isArray(data[campo])) {
+      erros.push(`❌ O campo "${campo}" não é um array válido.`);
+    } else if (data[campo].length !== totalDias) {
+      erros.push(`⚠️ O campo "${campo}" tem ${data[campo].length} valores, mas deveria ter ${totalDias}.`);
+    }
+  });
+
+  if (erros.length > 0) {
+    document.body.innerHTML += `
+      <div style="background:#fff3cd; border:1px solid #ffeeba; padding:10px; color:#856404; margin:20px auto; width:80%; text-align:left;">
+        <strong>Validação dos dados:</strong><br>
+        ${erros.join("<br>")}
+      </div>
+    `;
+    console.warn("Problemas encontrados no JSON:", erros);
+  }
+  // --- Fim da validação ---
+
         function criarGrafico(id, labelBase, valores, meta) {
           // Busca o último valor válido para emoji/meta
           const ultimaLeitura = [...valores].reverse().find(v => typeof v === 'number' && !isNaN(v));

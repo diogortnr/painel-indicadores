@@ -48,6 +48,12 @@
       color: #ff1919;
       margin-top: 40px;
     }
+    #ajustes-info {
+      text-align: center;
+      font-size: 0.8em;
+      color: #ffcc00;
+      margin-top: 8px;
+    }
     @media (min-width: 768px) {
       .chart-grid {
         grid-template-columns: 1fr 1fr;
@@ -69,6 +75,7 @@
   </div>
 
   <footer id="updated">Última atualização: carregando...</footer>
+  <div id="ajustes-info"></div>
 
   <script>
     const timestamp = new Date().toLocaleString('pt-BR');
@@ -77,27 +84,28 @@
     fetch("dados_completo_multigrafico.json?" + new Date().getTime())
       .then(resp => resp.json())
       .then(data => {
-        // --- Validação automática ---
+        // --- Validação e ajuste automático ---
         const totalDias = data.dias.length;
         const chaves = ["etit", "eser", "ral_etit", "ral_eser", "sla"];
-        let erros = [];
+        let avisos = [];
 
         chaves.forEach(campo => {
           if (!Array.isArray(data[campo])) {
-            erros.push(`❌ O campo "${campo}" não é um array válido.`);
+            avisos.push(`❌ O campo "${campo}" não é um array válido.`);
+            data[campo] = new Array(totalDias).fill(null);
           } else if (data[campo].length !== totalDias) {
-            erros.push(`⚠️ O campo "${campo}" tem ${data[campo].length} valores, mas deveria ter ${totalDias}.`);
+            avisos.push(`⚠️ O campo "${campo}" tinha ${data[campo].length} valores, foi ajustado para ${totalDias}.`);
+            if (data[campo].length < totalDias) {
+              data[campo] = [...data[campo], ...new Array(totalDias - data[campo].length).fill(null)];
+            } else {
+              data[campo] = data[campo].slice(0, totalDias);
+            }
           }
         });
 
-        if (erros.length > 0) {
-          document.body.innerHTML += `
-            <div style="background:#fff3cd; border:1px solid #ffeeba; padding:10px; color:#856404; margin:20px auto; width:80%; text-align:left;">
-              <strong>Validação dos dados:</strong><br>
-              ${erros.join("<br>")}
-            </div>
-          `;
-          console.warn("Problemas encontrados no JSON:", erros);
+        if (avisos.length > 0) {
+          document.getElementById("ajustes-info").innerHTML = `ℹ️ Alguns dados foram ajustados automaticamente.<br>${avisos.join("<br>")}`;
+          console.warn("Avisos de ajuste no JSON:", avisos);
         }
         // --- Fim da validação ---
 
@@ -169,4 +177,62 @@
               scales: {
                 x: {
                   ticks: {
-                    ca
+                    callback: (value, index) => {
+                      const raw = data.dias[index];
+                      if (!raw) return "";
+                      const [ano, mes, dia] = raw.split("-");
+                      return `${dia}/${mes}`;
+                    },
+                    color: "#ccc",
+                    maxRotation: 45,
+                    minRotation: 45
+                  },
+                  title: {
+                    display: true,
+                    text: "Data",
+                    color: "#aaa",
+                    font: { size: 12 }
+                  }
+                },
+                y: {
+                  ticks: {
+                    callback: v => `${(v * 100).toFixed(0)}%`,
+                    color: "#ccc"
+                  },
+                  beginAtZero: true,
+                  max: 1.1,
+                  title: {
+                    display: true,
+                    text: "Percentual",
+                    color: "#aaa",
+                    font: { size: 12 }
+                  }
+                }
+              }
+            },
+            plugins: [ChartDataLabels]
+          });
+        }
+
+        const graficos = [
+          { id: "etitChart", label: "INCIDENTES - ETIT (85%)", dados: data.etit, meta: 0.85 },
+          { id: "eserChart", label: "INCIDENTES - ESER (97%)", dados: data.eser, meta: 0.97 },
+          { id: "ralEtitChart", label: "RAL - ETIT (85%)", dados: data.ral_etit, meta: 0.85 },
+          { id: "ralEserChart", label: "RAL - ESER (97%)", dados: data.ral_eser, meta: 0.97 },
+          { id: "slaChart", label: "BA - SLA (85%)", dados: data.sla, meta: 0.85 }
+        ];
+
+        graficos.forEach(cfg => criarGrafico(cfg.id, cfg.label, cfg.dados, cfg.meta));
+      })
+      .catch(error => {
+        document.body.innerHTML += `
+          <div style="background:#ffefef; border:1px solid #ff1919; padding:10px; color:#ff1919; margin:20px auto; width:80%; text-align:center;">
+            ❌ Não foi possível carregar os dados.<br>
+            Verifique se o arquivo <code>dados_completo_multigrafico.json</code> está corretamente publicado no repositório.
+          </div>
+        `;
+        console.error(error);
+      });
+  </script>
+</body>
+</html>

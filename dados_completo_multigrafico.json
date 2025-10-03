@@ -34,7 +34,7 @@
   ],
   "etit": [
     0.965,
-    null,
+    0.984,
     null,
     null,
     null,
@@ -67,7 +67,7 @@
   ],
   "eser": [
     1.0,
-    null,
+    1.0,
     null,
     null,
     null,
@@ -100,7 +100,7 @@
   ],
   "ral_etit": [
     0.9065,
-    null,
+    0.50,
     null,
     null,
     null,
@@ -133,7 +133,7 @@
   ],
   "ral_eser": [
     0.9884,
-    null,
+    1.0,
     null,
     null,
     null,
@@ -166,7 +166,7 @@
   ],
   "sla": [
     1.0,
-    null,
+    1.0,
     null,
     null,
     null,

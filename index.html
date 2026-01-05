@@ -32,7 +32,6 @@
     body.com-banner {
       padding-top: 60px;
     }
-
     body {
       font-family: 'Inter', Arial, sans-serif;
       background: #23262f;
@@ -88,8 +87,8 @@
 
   <!-- Banner de aviso -->
   <div id="banner-aviso">
-    ⚠️ Ferramenta QLICK SENSE fora de serviço, sendo assim, não é possível extrair os dados relativos a incidentes. 
- </div>
+    ⚠️ Ferramenta QLICK SENSE fora de serviço, sendo assim, não é possível extrair os dados relativos a incidentes.
+  </div>
 
   <h1>Painel de Indicadores</h1>
   <div class="chart-grid">
@@ -107,13 +106,13 @@
     const timestamp = new Date().toLocaleString('pt-BR');
     document.getElementById("updated").textContent = "Última atualização: " + timestamp;
 
+    // FORÇA O BANNER A APARECER SEMPRE
+    document.getElementById("banner-aviso").style.display = "block";
+    document.body.classList.add("com-banner");
+
     fetch("dados_completo_multigrafico.json?" + new Date().getTime())
       .then(resp => resp.json())
       .then(data => {
-        // Esconde o banner se carregar com sucesso
-         document.getElementById("banner-aviso").style.display = "block";
-         document.body.classList.add("com-banner");
-
         // --- Validação e ajuste automático ---
         const totalDias = data.dias.length;
         const chaves = ["etit", "eser", "ral_etit", "ral_eser", "sla"];
@@ -240,7 +239,8 @@
                 }
               },
               plugins: [ChartDataLabels]
-            });
+            }
+          });
         }
 
         const graficos = [
@@ -254,10 +254,6 @@
         graficos.forEach(cfg => criarGrafico(cfg.id, cfg.label, cfg.dados, cfg.meta));
       })
       .catch(error => {
-        // Mostra o banner se der erro
-        document.getElementById("banner-aviso").style.display = "block";
-        document.body.classList.add("com-banner");
-
         document.body.innerHTML += `
           <div style="background:#ffefef; border:1px solid #ff1919; padding:10px; color:#ff1919; margin:20px auto; width:80%; text-align:center;">
             ❌ Não foi possível carregar os dados.<br>

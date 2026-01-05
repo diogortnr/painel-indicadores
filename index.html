@@ -13,6 +13,26 @@
   <link rel="icon" href="favicon.png" type="image/png" />
   <!-- Estilos -->
   <style>
+    /* Banner de aviso */
+    #banner-aviso {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: linear-gradient(90deg, #ff6b6b, #ffa500);
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-weight: bold;
+      font-size: 16px;
+      z-index: 9999;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    body.com-banner {
+      padding-top: 60px;
+    }
+
     body {
       font-family: 'Inter', Arial, sans-serif;
       background: #23262f;
@@ -65,6 +85,12 @@
   </style>
 </head>
 <body>
+
+  <!-- Banner de aviso -->
+  <div id="banner-aviso">
+    ⚠️ Ferramenta QLICK SENSE fora de serviço, sendo assim, não é possível extrair os dados relativos a incidentes. 
+ </div>
+
   <h1>Painel de Indicadores</h1>
   <div class="chart-grid">
     <div class="chart-container"><canvas id="etitChart"></canvas></div>
@@ -84,6 +110,10 @@
     fetch("dados_completo_multigrafico.json?" + new Date().getTime())
       .then(resp => resp.json())
       .then(data => {
+        // Esconde o banner se carregar com sucesso
+        document.getElementById("banner-aviso").style.display = "none";
+        document.body.classList.remove("com-banner");
+
         // --- Validação e ajuste automático ---
         const totalDias = data.dias.length;
         const chaves = ["etit", "eser", "ral_etit", "ral_eser", "sla"];
@@ -208,10 +238,9 @@
                     font: { size: 12 }
                   }
                 }
-              }
-            },
-            plugins: [ChartDataLabels]
-          });
+              },
+              plugins: [ChartDataLabels]
+            });
         }
 
         const graficos = [
@@ -225,6 +254,10 @@
         graficos.forEach(cfg => criarGrafico(cfg.id, cfg.label, cfg.dados, cfg.meta));
       })
       .catch(error => {
+        // Mostra o banner se der erro
+        document.getElementById("banner-aviso").style.display = "block";
+        document.body.classList.add("com-banner");
+
         document.body.innerHTML += `
           <div style="background:#ffefef; border:1px solid #ff1919; padding:10px; color:#ff1919; margin:20px auto; width:80%; text-align:center;">
             ❌ Não foi possível carregar os dados.<br>

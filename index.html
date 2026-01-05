@@ -111,8 +111,8 @@
       .then(resp => resp.json())
       .then(data => {
         // Esconde o banner se carregar com sucesso
-        document.getElementById("banner-aviso").style.display = "none";
-        document.body.classList.remove("com-banner");
+         document.getElementById("banner-aviso").style.display = "block";
+         document.body.classList.add("com-banner");
 
         // --- Validação e ajuste automático ---
         const totalDias = data.dias.length;

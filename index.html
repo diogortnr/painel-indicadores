@@ -13,25 +13,6 @@
   <link rel="icon" href="favicon.png" type="image/png" />
   <!-- Estilos -->
   <style>
-    /* Banner de aviso */
-    #banner-aviso {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: linear-gradient(90deg, #ff6b6b, #ffa500);
-      color: white;
-      text-align: center;
-      padding: 15px;
-      font-weight: bold;
-      font-size: 16px;
-      z-index: 9999;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    }
-    body.com-banner {
-      padding-top: 60px;
-    }
     body {
       font-family: 'Inter', Arial, sans-serif;
       background: #23262f;
@@ -84,12 +65,6 @@
   </style>
 </head>
 <body>
-
-  <!-- Banner de aviso -->
-  <div id="banner-aviso">
-    ⚠️ Ferramenta QLICK SENSE fora de serviço, sendo assim, não é possível extrair os dados relativos a incidentes.
-  </div>
-
   <h1>Painel de Indicadores</h1>
   <div class="chart-grid">
     <div class="chart-container"><canvas id="etitChart"></canvas></div>
@@ -105,10 +80,6 @@
   <script>
     const timestamp = new Date().toLocaleString('pt-BR');
     document.getElementById("updated").textContent = "Última atualização: " + timestamp;
-
-    // FORÇA O BANNER A APARECER SEMPRE
-    document.getElementById("banner-aviso").style.display = "block";
-    document.body.classList.add("com-banner");
 
     fetch("dados_completo_multigrafico.json?" + new Date().getTime())
       .then(resp => resp.json())
@@ -237,9 +208,9 @@
                     font: { size: 12 }
                   }
                 }
-              },
-              plugins: [ChartDataLabels]
-            }
+              }
+            },
+            plugins: [ChartDataLabels]
           });
         }
 
